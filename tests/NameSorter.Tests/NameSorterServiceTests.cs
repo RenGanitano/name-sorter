@@ -9,6 +9,15 @@ namespace NameSorter.Tests;
 public class NameSorterServiceTests
 {
     [Fact]
+    public void Constructor_NullComparer_ThrowsArgumentNullException()
+    {
+        Action act = () => new NameSorterService(null!);
+
+        act.Should().Throw<ArgumentNullException>()
+            .Which.ParamName.Should().Be("comparer");
+    }
+
+    [Fact]
     public void Sort_DelegatesToInjectedComparer()
     {
         var mockComparer = new Mock<IComparer<PersonName>>();
