@@ -1,31 +1,31 @@
 Summary
-  Generated on: 09/05/2026 - 09:00:33
-  Coverage date: 09/05/2026 - 09:00:30
+  Generated on: 09/05/2026 - 09:33:35
+  Coverage date: 09/05/2026 - 09:33:31
   Parser: Cobertura
   Assemblies: 1
   Classes: 9
   Files: 9
-  Line coverage: 61.3%
-  Covered lines: 54
-  Uncovered lines: 34
+  Line coverage: 70.4%
+  Covered lines: 62
+  Uncovered lines: 26
   Coverable lines: 88
   Total lines: 261
-  Branch coverage: 76.3% (29 of 38)
-  Covered branches: 29
+  Branch coverage: 81.5% (31 of 38)
+  Covered branches: 31
   Total branches: 38
-  Method coverage: 71.4% (10 of 14)
-  Full method coverage: 71.4% (10 of 14)
-  Covered methods: 10
-  Fully covered methods: 10
+  Method coverage: 85.7% (12 of 14)
+  Full method coverage: 85.7% (12 of 14)
+  Covered methods: 12
+  Fully covered methods: 12
   Total methods: 14
 
-name-sorter                                    61.3%
+name-sorter                                    70.4%
   NameSorter.Comparers.LastNameFirstComparer    100%
   NameSorter.Models.PersonName                  100%
   NameSorter.NameSortingApplication             100%
   NameSorter.Program                              0%
   NameSorter.Services.ConsoleNameWriter           0%
-  NameSorter.Services.FileNameReader              0%
-  NameSorter.Services.FileNameWriter              0%
+  NameSorter.Services.FileNameReader            100%
+  NameSorter.Services.FileNameWriter            100%
   NameSorter.Services.NameParser                100%
   NameSorter.Services.NameSorterService         100%
