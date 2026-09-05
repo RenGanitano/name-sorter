@@ -291,14 +291,17 @@ var assemblies = [
     "name": "name-sorter",
     "classes": [
       { "name": "NameSorter.Comparers.LastNameFirstComparer", "rp": "name_sorter_LastNameFirstComparer.html", "cl": 12, "ucl": 0, "cal": 12, "tl": 33, "cb": 12, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "NameSorter.Models.InvalidName", "rp": "name_sorter_InvalidName.html", "cl": 1, "ucl": 0, "cal": 1, "tl": 13, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "NameSorter.Models.NameSortingResult", "rp": "name_sorter_NameSortingResult.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 13, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "NameSorter.Models.PersonName", "rp": "name_sorter_PersonName.html", "cl": 7, "ucl": 0, "cal": 7, "tl": 24, "cb": 4, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "NameSorter.NameSortingApplication", "rp": "name_sorter_NameSortingApplication.html", "cl": 20, "ucl": 0, "cal": 20, "tl": 53, "cb": 6, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "NameSorter.Program", "rp": "name_sorter_Program.html", "cl": 0, "ucl": 23, "cal": 23, "tl": 48, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "NameSorter.NameSortingApplication", "rp": "name_sorter_NameSortingApplication.html", "cl": 24, "ucl": 0, "cal": 24, "tl": 62, "cb": 8, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "NameSorter.Program", "rp": "name_sorter_Program.html", "cl": 25, "ucl": 3, "cal": 28, "tl": 60, "cb": 6, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "NameSorter.Services.ConsoleNameWriter", "rp": "name_sorter_ConsoleNameWriter.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 17, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "NameSorter.Services.FileNameReader", "rp": "name_sorter_FileNameReader.html", "cl": 5, "ucl": 0, "cal": 5, "tl": 17, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "NameSorter.Services.FileNameWriter", "rp": "name_sorter_FileNameWriter.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 17, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "NameSorter.Services.NameParser", "rp": "name_sorter_NameParser.html", "cl": 9, "ucl": 0, "cal": 9, "tl": 29, "cb": 6, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "NameSorter.Services.NameSorterService", "rp": "name_sorter_NameSorterService.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 23, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "NameSorter.Services.NameParser", "rp": "name_sorter_NameParser.html", "cl": 8, "ucl": 0, "cal": 8, "tl": 28, "cb": 6, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "NameSorter.Services.NameParseResult", "rp": "name_sorter_NameParseResult.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 13, "cb": 1, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "NameSorter.Services.NameSorterService", "rp": "name_sorter_NameSorterService.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 21, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
 ];
 
