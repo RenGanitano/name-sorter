@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using NameSorter.Services;
 
 namespace NameSorter.Tests;
@@ -11,10 +12,10 @@ public class NameParserTests
     {
         var result = _parser.Parse("Janet Parsons");
 
-        Assert.NotNull(result);
-        Assert.Equal("Parsons", result.LastName);
-        Assert.Single(result.GivenNames);
-        Assert.Equal("Janet", result.GivenNames[0]);
+        result.Should().NotBeNull();
+        result.LastName.Should().Be("Parsons");
+        result.GivenNames.Should().ContainSingle();
+        result.GivenNames[0].Should().Be("Janet");
     }
 
     [Fact]
@@ -22,11 +23,11 @@ public class NameParserTests
     {
         var result = _parser.Parse("Adonis Julius Archer");
 
-        Assert.NotNull(result);
-        Assert.Equal("Archer", result.LastName);
-        Assert.Equal(2, result.GivenNames.Count);
-        Assert.Equal("Adonis", result.GivenNames[0]);
-        Assert.Equal("Julius", result.GivenNames[1]);
+        result.Should().NotBeNull();
+        result.LastName.Should().Be("Archer");
+        result.GivenNames.Should().HaveCount(2);
+        result.GivenNames[0].Should().Be("Adonis");
+        result.GivenNames[1].Should().Be("Julius");
     }
 
     [Fact]
@@ -34,12 +35,12 @@ public class NameParserTests
     {
         var result = _parser.Parse("Hunter Uriah Mathew Clarke");
 
-        Assert.NotNull(result);
-        Assert.Equal("Clarke", result.LastName);
-        Assert.Equal(3, result.GivenNames.Count);
-        Assert.Equal("Hunter", result.GivenNames[0]);
-        Assert.Equal("Uriah", result.GivenNames[1]);
-        Assert.Equal("Mathew", result.GivenNames[2]);
+        result.Should().NotBeNull();
+        result.LastName.Should().Be("Clarke");
+        result.GivenNames.Should().HaveCount(3);
+        result.GivenNames[0].Should().Be("Hunter");
+        result.GivenNames[1].Should().Be("Uriah");
+        result.GivenNames[2].Should().Be("Mathew");
     }
 
     [Fact]
@@ -47,7 +48,7 @@ public class NameParserTests
     {
         var result = _parser.Parse("");
 
-        Assert.Null(result);
+        result.Should().BeNull();
     }
 
     [Fact]
@@ -55,7 +56,7 @@ public class NameParserTests
     {
         var result = _parser.Parse("   ");
 
-        Assert.Null(result);
+        result.Should().BeNull();
     }
 
     [Fact]
@@ -63,7 +64,7 @@ public class NameParserTests
     {
         var result = _parser.Parse("Madonna");
 
-        Assert.Null(result);
+        result.Should().BeNull();
     }
 
     [Fact]
@@ -71,7 +72,7 @@ public class NameParserTests
     {
         var result = _parser.Parse("One Two Three Four Five");
 
-        Assert.Null(result);
+        result.Should().BeNull();
     }
 
     [Fact]
@@ -79,9 +80,9 @@ public class NameParserTests
     {
         var result = _parser.Parse("  Janet Parsons  ");
 
-        Assert.NotNull(result);
-        Assert.Equal("Parsons", result.LastName);
-        Assert.Equal("Janet", result.GivenNames[0]);
+        result.Should().NotBeNull();
+        result.LastName.Should().Be("Parsons");
+        result.GivenNames[0].Should().Be("Janet");
     }
 
     [Fact]
@@ -89,9 +90,9 @@ public class NameParserTests
     {
         var result = _parser.Parse("Janet   Parsons");
 
-        Assert.NotNull(result);
-        Assert.Equal("Parsons", result.LastName);
-        Assert.Equal("Janet", result.GivenNames[0]);
+        result.Should().NotBeNull();
+        result.LastName.Should().Be("Parsons");
+        result.GivenNames[0].Should().Be("Janet");
     }
 
     [Theory]
@@ -101,8 +102,8 @@ public class NameParserTests
     {
         var result = _parser.Parse(rawName);
 
-        Assert.NotNull(result);
-        Assert.Equal("Parsons", result.LastName);
-        Assert.Equal("Janet", result.GivenNames[0]);
+        result.Should().NotBeNull();
+        result.LastName.Should().Be("Parsons");
+        result.GivenNames[0].Should().Be("Janet");
     }
 }

@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Moq;
 using NameSorter.Comparers;
 using NameSorter.Models;
@@ -40,9 +41,9 @@ public class NameSorterServiceTests
 
         var sorted = service.Sort(names);
 
-        Assert.Equal("Marin Alvarez", sorted[0].ToString());
-        Assert.Equal("Leo Gardner", sorted[1].ToString());
-        Assert.Equal("Janet Parsons", sorted[2].ToString());
+        sorted[0].ToString().Should().Be("Marin Alvarez");
+        sorted[1].ToString().Should().Be("Leo Gardner");
+        sorted[2].ToString().Should().Be("Janet Parsons");
     }
 
     [Fact]
@@ -52,7 +53,7 @@ public class NameSorterServiceTests
 
         var sorted = service.Sort([]);
 
-        Assert.Empty(sorted);
+        sorted.Should().BeEmpty();
     }
 
     [Fact]
@@ -66,8 +67,8 @@ public class NameSorterServiceTests
 
         var sorted = service.Sort(names);
 
-        Assert.Single(sorted);
-        Assert.Equal("John Doe", sorted[0].ToString());
+        sorted.Should().ContainSingle();
+        sorted[0].ToString().Should().Be("John Doe");
     }
 
     [Fact]
@@ -83,6 +84,6 @@ public class NameSorterServiceTests
 
         service.Sort(names);
 
-        Assert.Equal(originalNames, names.Select(name => name.ToString()).ToList());
+        names.Select(name => name.ToString()).Should().Equal(originalNames);
     }
 }

@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using NameSorter.Models;
 
 namespace NameSorter.Tests;
@@ -9,7 +10,7 @@ public class PersonNameTests
     {
         var name = new PersonName(["Janet"], "Parsons");
 
-        Assert.Equal("Janet Parsons", name.ToString());
+        name.ToString().Should().Be("Janet Parsons");
     }
 
     [Fact]
@@ -17,7 +18,7 @@ public class PersonNameTests
     {
         var name = new PersonName(["Adonis", "Julius"], "Archer");
 
-        Assert.Equal("Adonis Julius Archer", name.ToString());
+        name.ToString().Should().Be("Adonis Julius Archer");
     }
 
     [Fact]
@@ -25,7 +26,7 @@ public class PersonNameTests
     {
         var name = new PersonName(["Hunter", "Uriah", "Mathew"], "Clarke");
 
-        Assert.Equal("Hunter Uriah Mathew Clarke", name.ToString());
+        name.ToString().Should().Be("Hunter Uriah Mathew Clarke");
     }
 
     [Fact]
@@ -33,7 +34,7 @@ public class PersonNameTests
     {
         Action act = () => new PersonName(null!, "Smith");
 
-        Assert.Throws<ArgumentNullException>(act);
+        act.Should().Throw<ArgumentNullException>();
     }
 
     [Fact]
@@ -41,7 +42,7 @@ public class PersonNameTests
     {
         Action act = () => new PersonName(["John"], null!);
 
-        Assert.Throws<ArgumentNullException>(act);
+        act.Should().Throw<ArgumentNullException>();
     }
 
     [Fact]
@@ -50,6 +51,6 @@ public class PersonNameTests
         var givenNames = new List<string> { "John" };
         var name = new PersonName(givenNames, "Smith");
 
-        Assert.IsAssignableFrom<IReadOnlyList<string>>(name.GivenNames);
+        name.GivenNames.Should().BeAssignableTo<IReadOnlyList<string>>();
     }
 }
