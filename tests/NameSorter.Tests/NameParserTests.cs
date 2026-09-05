@@ -5,94 +5,96 @@ namespace NameSorter.Tests;
 
 public class NameParserTests
 {
-    private readonly NameParser _parser = new();
+    private readonly NameParser parser = new();
 
     [Fact]
     public void Parse_OneGivenName_ReturnsExpectedPersonName()
     {
-        var result = _parser.Parse("Janet Parsons");
+        var result = parser.Parse("Janet Parsons");
 
-        result.Should().NotBeNull();
-        result.LastName.Should().Be("Parsons");
-        result.GivenNames.Should().ContainSingle();
-        result.GivenNames[0].Should().Be("Janet");
+        result.Name.Should().NotBeNull();
+        result.Name!.LastName.Should().Be("Parsons");
+        result.Name.GivenNames.Should().ContainSingle();
+        result.Name.GivenNames[0].Should().Be("Janet");
     }
 
     [Fact]
     public void Parse_TwoGivenNames_ReturnsExpectedPersonName()
     {
-        var result = _parser.Parse("Adonis Julius Archer");
+        var result = parser.Parse("Adonis Julius Archer");
 
-        result.Should().NotBeNull();
-        result.LastName.Should().Be("Archer");
-        result.GivenNames.Should().HaveCount(2);
-        result.GivenNames[0].Should().Be("Adonis");
-        result.GivenNames[1].Should().Be("Julius");
+        result.Name.Should().NotBeNull();
+        result.Name!.LastName.Should().Be("Archer");
+        result.Name.GivenNames.Should().HaveCount(2);
+        result.Name.GivenNames[0].Should().Be("Adonis");
+        result.Name.GivenNames[1].Should().Be("Julius");
     }
 
     [Fact]
     public void Parse_ThreeGivenNames_ReturnsExpectedPersonName()
     {
-        var result = _parser.Parse("Hunter Uriah Mathew Clarke");
+        var result = parser.Parse("Hunter Uriah Mathew Clarke");
 
-        result.Should().NotBeNull();
-        result.LastName.Should().Be("Clarke");
-        result.GivenNames.Should().HaveCount(3);
-        result.GivenNames[0].Should().Be("Hunter");
-        result.GivenNames[1].Should().Be("Uriah");
-        result.GivenNames[2].Should().Be("Mathew");
+        result.Name.Should().NotBeNull();
+        result.Name!.LastName.Should().Be("Clarke");
+        result.Name.GivenNames.Should().HaveCount(3);
+        result.Name.GivenNames[0].Should().Be("Hunter");
+        result.Name.GivenNames[1].Should().Be("Uriah");
+        result.Name.GivenNames[2].Should().Be("Mathew");
     }
 
     [Fact]
     public void Parse_EmptyString_ReturnsNull()
     {
-        var result = _parser.Parse("");
+        var result = parser.Parse("");
 
-        result.Should().BeNull();
+        result.IsIgnored.Should().BeTrue();
     }
 
     [Fact]
     public void Parse_WhitespaceOnly_ReturnsNull()
     {
-        var result = _parser.Parse("   ");
+        var result = parser.Parse("   ");
 
-        result.Should().BeNull();
+        result.IsIgnored.Should().BeTrue();
     }
 
     [Fact]
     public void Parse_SingleWord_ReturnsNull()
     {
-        var result = _parser.Parse("Madonna");
+        var result = parser.Parse("Madonna");
 
-        result.Should().BeNull();
+        result.IsValid.Should().BeFalse();
+        result.Error.Should().Be("expected 2-4 parts, got 1");
     }
 
     [Fact]
     public void Parse_FiveWords_ReturnsNull()
     {
-        var result = _parser.Parse("One Two Three Four Five");
+        var result = parser.Parse("One Two Three Four Five");
 
-        result.Should().BeNull();
+        result.IsValid.Should().BeFalse();
+        result.Error.Should().Be("expected 2-4 parts, got 5");
     }
 
     [Fact]
     public void Parse_LeadingAndTrailingWhitespace_ReturnsExpectedPersonName()
     {
-        var result = _parser.Parse("  Janet Parsons  ");
+        var result = parser.Parse("  Janet Parsons  ");
 
-        result.Should().NotBeNull();
-        result.LastName.Should().Be("Parsons");
-        result.GivenNames[0].Should().Be("Janet");
+        result.Name.Should().NotBeNull();
+        result.Name!.LastName.Should().Be("Parsons");
+        result.Name.GivenNames[0].Should().Be("Janet");
     }
 
     [Fact]
     public void Parse_MultipleSpacesBetweenNames_ReturnsExpectedPersonName()
     {
-        var result = _parser.Parse("Janet   Parsons");
+        var result = parser.Parse("Janet   Parsons");
 
-        result.Should().NotBeNull();
-        result.LastName.Should().Be("Parsons");
-        result.GivenNames[0].Should().Be("Janet");
+        result.Name.Should().NotBeNull();
+        result.Name!.LastName.Should().Be("Parsons");
+        result.Name.GivenNames[0].Should().Be("Janet");
     }
 
     [Theory]
@@ -100,10 +102,10 @@ public class NameParserTests
     [InlineData("Janet\u00A0Parsons")]
     public void Parse_TabAndNonBreakingSpaceBetweenNames_ReturnsExpectedPersonName(string rawName)
     {
-        var result = _parser.Parse(rawName);
+        var result = parser.Parse(rawName);
 
-        result.Should().NotBeNull();
-        result.LastName.Should().Be("Parsons");
-        result.GivenNames[0].Should().Be("Janet");
+        result.Name.Should().NotBeNull();
+        result.Name!.LastName.Should().Be("Parsons");
+        result.Name.GivenNames[0].Should().Be("Janet");
     }
 }

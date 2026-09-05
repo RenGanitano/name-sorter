@@ -8,22 +8,21 @@ namespace NameSorter.Services;
 /// </summary>
 public class NameParser : INameParser
 {
-    public PersonName? Parse(string rawName)
+    public NameParseResult Parse(string rawName)
     {
         if (string.IsNullOrWhiteSpace(rawName))
-            return null;
+            return new NameParseResult(null, null);
 
         var parts = rawName.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
 
         if (parts.Length < 2 || parts.Length > 4)
         {
-            Console.Error.WriteLine($"Warning: Invalid name \"{rawName}\" — expected 2–4 parts, got {parts.Length}. Skipping.");
-            return null;
+            return new NameParseResult(null, $"expected 2-4 parts, got {parts.Length}");
         }
 
         var givenNames = parts[..^1].ToList();
         var lastName = parts[^1];
 
-        return new PersonName(givenNames, lastName);
+        return new NameParseResult(new PersonName(givenNames, lastName), null);
     }
 }

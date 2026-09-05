@@ -16,8 +16,6 @@ public class NameSorterService : INameSorter
 
     public IList<PersonName> Sort(IList<PersonName> names)
     {
-        var sorted = new List<PersonName>(names);
-        sorted.Sort(this.comparer);
-        return sorted;
+        return names.OrderBy(name => name, this.comparer).ToList();
     }
 }

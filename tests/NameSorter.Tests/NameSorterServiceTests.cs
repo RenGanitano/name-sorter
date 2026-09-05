@@ -95,4 +95,17 @@ public class NameSorterServiceTests
 
         names.Select(name => name.ToString()).Should().Equal(originalNames);
     }
+
+    [Fact]
+    public void Sort_EqualNames_PreservesInputOrder()
+    {
+        var service = new NameSorterService(new LastNameFirstComparer());
+        var first = new PersonName(["Alex"], "Smith");
+        var second = new PersonName(["alex"], "SMITH");
+
+        var sorted = service.Sort([first, second]);
+
+        sorted[0].Should().BeSameAs(first);
+        sorted[1].Should().BeSameAs(second);
+    }
 }
