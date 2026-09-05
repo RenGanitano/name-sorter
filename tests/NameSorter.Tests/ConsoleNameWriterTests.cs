@@ -6,12 +6,10 @@ namespace NameSorter.Tests;
 
 public class ConsoleNameWriterTests
 {
-    private static readonly object ConsoleOutputLock = new();
-
     [Fact]
     public void Write_ValidNames_OutputsToConsole()
     {
-        lock (ConsoleOutputLock)
+        lock (TestProcessState.Lock)
         {
             var originalOutput = Console.Out;
 
