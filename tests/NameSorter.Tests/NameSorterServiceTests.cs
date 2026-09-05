@@ -85,4 +85,17 @@ public class NameSorterServiceTests
 
         Assert.Equal(originalNames, names.Select(name => name.ToString()).ToList());
     }
+
+    [Fact]
+    public void Sort_EqualNames_PreservesInputOrder()
+    {
+        var service = new NameSorterService(new LastNameFirstComparer());
+        var first = new PersonName(["Alex"], "Smith");
+        var second = new PersonName(["alex"], "SMITH");
+
+        var sorted = service.Sort([first, second]);
+
+        Assert.Same(first, sorted[0]);
+        Assert.Same(second, sorted[1]);
+    }
 }

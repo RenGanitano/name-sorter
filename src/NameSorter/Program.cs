@@ -7,20 +7,20 @@ namespace NameSorter;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static int Main(string[] args)
     {
         if (args.Length == 0)
         {
             Console.Error.WriteLine("Usage: name-sorter <file-path>");
-            return;
+            return 1;
         }
 
         var filePath = args[0];
 
         if (!File.Exists(filePath))
         {
-            Console.Error.WriteLine($"Error: File not found — {filePath}");
-            return;
+            Console.Error.WriteLine($"Error: File not found: {filePath}");
+            return 2;
         }
 
         // Configure DI container
@@ -38,11 +38,23 @@ public class Program
 
         try
         {
-            app.Run(filePath);
+            var result = app.Run(filePath);
+
+            foreach (var invalidName in result.InvalidNames)
+            {
+                Console.Error.WriteLine(
+                    $"Warning: Line {invalidName.LineNumber} (\"{invalidName.Value}\") skipped: {invalidName.Reason}.");
+            }
+
+            Console.Error.WriteLine(
+                $"Processed {result.SortedNames.Count} valid name(s); skipped {result.InvalidNames.Count} invalid line(s).");
+
+            return 0;
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Error: {ex.Message}");
+            return 3;
         }
     }
 }

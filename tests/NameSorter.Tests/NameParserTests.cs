@@ -4,94 +4,96 @@ namespace NameSorter.Tests;
 
 public class NameParserTests
 {
-    private readonly NameParser _parser = new();
+    private readonly NameParser parser = new();
 
     [Fact]
     public void Parse_OneGivenName_ReturnsExpectedPersonName()
     {
-        var result = _parser.Parse("Janet Parsons");
+        var result = parser.Parse("Janet Parsons");
 
-        Assert.NotNull(result);
-        Assert.Equal("Parsons", result.LastName);
-        Assert.Single(result.GivenNames);
-        Assert.Equal("Janet", result.GivenNames[0]);
+        Assert.NotNull(result.Name);
+        Assert.Equal("Parsons", result.Name.LastName);
+        Assert.Single(result.Name.GivenNames);
+        Assert.Equal("Janet", result.Name.GivenNames[0]);
     }
 
     [Fact]
     public void Parse_TwoGivenNames_ReturnsExpectedPersonName()
     {
-        var result = _parser.Parse("Adonis Julius Archer");
+        var result = parser.Parse("Adonis Julius Archer");
 
-        Assert.NotNull(result);
-        Assert.Equal("Archer", result.LastName);
-        Assert.Equal(2, result.GivenNames.Count);
-        Assert.Equal("Adonis", result.GivenNames[0]);
-        Assert.Equal("Julius", result.GivenNames[1]);
+        Assert.NotNull(result.Name);
+        Assert.Equal("Archer", result.Name.LastName);
+        Assert.Equal(2, result.Name.GivenNames.Count);
+        Assert.Equal("Adonis", result.Name.GivenNames[0]);
+        Assert.Equal("Julius", result.Name.GivenNames[1]);
     }
 
     [Fact]
     public void Parse_ThreeGivenNames_ReturnsExpectedPersonName()
     {
-        var result = _parser.Parse("Hunter Uriah Mathew Clarke");
+        var result = parser.Parse("Hunter Uriah Mathew Clarke");
 
-        Assert.NotNull(result);
-        Assert.Equal("Clarke", result.LastName);
-        Assert.Equal(3, result.GivenNames.Count);
-        Assert.Equal("Hunter", result.GivenNames[0]);
-        Assert.Equal("Uriah", result.GivenNames[1]);
-        Assert.Equal("Mathew", result.GivenNames[2]);
+        Assert.NotNull(result.Name);
+        Assert.Equal("Clarke", result.Name.LastName);
+        Assert.Equal(3, result.Name.GivenNames.Count);
+        Assert.Equal("Hunter", result.Name.GivenNames[0]);
+        Assert.Equal("Uriah", result.Name.GivenNames[1]);
+        Assert.Equal("Mathew", result.Name.GivenNames[2]);
     }
 
     [Fact]
     public void Parse_EmptyString_ReturnsNull()
     {
-        var result = _parser.Parse("");
+        var result = parser.Parse("");
 
-        Assert.Null(result);
+        Assert.True(result.IsIgnored);
     }
 
     [Fact]
     public void Parse_WhitespaceOnly_ReturnsNull()
     {
-        var result = _parser.Parse("   ");
+        var result = parser.Parse("   ");
 
-        Assert.Null(result);
+        Assert.True(result.IsIgnored);
     }
 
     [Fact]
     public void Parse_SingleWord_ReturnsNull()
     {
-        var result = _parser.Parse("Madonna");
+        var result = parser.Parse("Madonna");
 
-        Assert.Null(result);
+        Assert.False(result.IsValid);
+        Assert.Equal("expected 2-4 parts, got 1", result.Error);
     }
 
     [Fact]
     public void Parse_FiveWords_ReturnsNull()
     {
-        var result = _parser.Parse("One Two Three Four Five");
+        var result = parser.Parse("One Two Three Four Five");
 
-        Assert.Null(result);
+        Assert.False(result.IsValid);
+        Assert.Equal("expected 2-4 parts, got 5", result.Error);
     }
 
     [Fact]
     public void Parse_LeadingAndTrailingWhitespace_ReturnsExpectedPersonName()
     {
-        var result = _parser.Parse("  Janet Parsons  ");
+        var result = parser.Parse("  Janet Parsons  ");
 
-        Assert.NotNull(result);
-        Assert.Equal("Parsons", result.LastName);
-        Assert.Equal("Janet", result.GivenNames[0]);
+        Assert.NotNull(result.Name);
+        Assert.Equal("Parsons", result.Name.LastName);
+        Assert.Equal("Janet", result.Name.GivenNames[0]);
     }
 
     [Fact]
     public void Parse_MultipleSpacesBetweenNames_ReturnsExpectedPersonName()
     {
-        var result = _parser.Parse("Janet   Parsons");
+        var result = parser.Parse("Janet   Parsons");
 
-        Assert.NotNull(result);
-        Assert.Equal("Parsons", result.LastName);
-        Assert.Equal("Janet", result.GivenNames[0]);
+        Assert.NotNull(result.Name);
+        Assert.Equal("Parsons", result.Name.LastName);
+        Assert.Equal("Janet", result.Name.GivenNames[0]);
     }
 
     [Theory]
@@ -99,10 +101,10 @@ public class NameParserTests
     [InlineData("Janet\u00A0Parsons")]
     public void Parse_TabAndNonBreakingSpaceBetweenNames_ReturnsExpectedPersonName(string rawName)
     {
-        var result = _parser.Parse(rawName);
+        var result = parser.Parse(rawName);
 
-        Assert.NotNull(result);
-        Assert.Equal("Parsons", result.LastName);
-        Assert.Equal("Janet", result.GivenNames[0]);
+        Assert.NotNull(result.Name);
+        Assert.Equal("Parsons", result.Name.LastName);
+        Assert.Equal("Janet", result.Name.GivenNames[0]);
     }
 }

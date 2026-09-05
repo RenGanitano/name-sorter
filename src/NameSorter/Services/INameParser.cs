@@ -8,7 +8,7 @@ namespace NameSorter.Services;
 public interface INameParser
 {
     /// <summary>
-    /// Parses a raw name string. Returns null if the name is invalid.
+    /// Parses a raw name string and returns validation details when it is invalid.
     /// </summary>
-    PersonName? Parse(string rawName);
+    NameParseResult Parse(string rawName);
 }
