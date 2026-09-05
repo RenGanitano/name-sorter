@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: write
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -35,19 +38,61 @@ jobs:
       - name: Install ReportGenerator
         run: dotnet tool install -g dotnet-reportgenerator-globaltool
 
-      - name: Generate coverage summary
+      - name: Generate coverage report
         run: |
           reportgenerator \
             -reports:"./coverage/**/coverage.cobertura.xml" \
-            -targetdir:"./coverage-report" \
-            -reporttypes:"TextSummary;MarkdownSummaryGithub"
+            -targetdir:"./site" \
+            -reporttypes:"Html;TextSummary"
+
+      - name: Create README badge
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import re
+
+          summary_path = pathlib.Path('site/Summary.txt')
+          if not summary_path.exists():
+              raise FileNotFoundError('Coverage summary was not generated.')
+
+          text = summary_path.read_text()
+          match = re.search(r'Line coverage:\s*([0-9.]+)%', text)
+          if not match:
+              raise ValueError('Could not find line coverage value in the summary output.')
+
+          percent = float(match.group(1))
+          color = 'brightgreen' if percent >= 80 else 'yellow' if percent >= 60 else 'red'
+          value = f'{percent:.1f}%'
+
+          svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="130" height="20" role="img" aria-label="coverage: {value}">
+          <title>coverage: {value}</title>
+          <linearGradient id="s" x2="0" y2="100%">
+            <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+            <stop offset="1" stop-opacity=".1"/>
+          </linearGradient>
+          <mask id="m"><rect width="130" height="20" rx="3" fill="#fff"/></mask>
+          <g mask="url(#m)">
+            <rect width="64" height="20" fill="#555"/>
+            <rect x="64" width="66" height="20" fill="{color}"/>
+            <rect width="130" height="20" fill="url(#s)"/>
+          </g>
+          <g fill="#fff" text-anchor="middle" font-family="sans-serif" font-size="11">
+            <text x="32" y="14">coverage</text>
+            <text x="97" y="14">{value}</text>
+          </g>
+          </svg>'''
+
+          pathlib.Path('site/badge.svg').write_text(svg)
+          PY
 
       - name: Publish coverage summary
         run: |
-          cat ./coverage-report/Summary.txt >> $GITHUB_STEP_SUMMARY
+          cat ./site/Summary.txt >> $GITHUB_STEP_SUMMARY
 
-      - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
+      - name: Deploy coverage site to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          name: coverage-report
-          path: ./coverage-report
+          branch: gh-pages
+          folder: site
+          clean: true

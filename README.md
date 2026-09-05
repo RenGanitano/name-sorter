@@ -1,5 +1,7 @@
 # Name Sorter
 
+[![Coverage](https://renganitano.github.io/name-sorter/badge.svg)](https://renganitano.github.io/name-sorter/)
+
 A command-line application that sorts a list of names by **last name**, then by **given names**.
 
 ## Prerequisites

@@ -34,5 +34,9 @@ artifacts/
 # macOS
 .DS_Store
 
+# Test coverage report
+coverage/
+site/
+
 # Output file (generated at runtime)
 sorted-names-list.txt
