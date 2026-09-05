@@ -24,5 +24,30 @@ jobs:
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
-      - name: Test
-        run: dotnet test --no-build --configuration Release --verbosity normal
+      - name: Test with coverage
+        run: |
+          dotnet test tests/NameSorter.Tests/NameSorter.Tests.csproj \
+            --no-build \
+            --configuration Release \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./coverage
+
+      - name: Install ReportGenerator
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+      - name: Generate coverage summary
+        run: |
+          reportgenerator \
+            -reports:"./coverage/**/coverage.cobertura.xml" \
+            -targetdir:"./coverage-report" \
+            -reporttypes:"TextSummary;MarkdownSummaryGithub"
+
+      - name: Publish coverage summary
+        run: |
+          cat ./coverage-report/Summary.txt >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ./coverage-report
