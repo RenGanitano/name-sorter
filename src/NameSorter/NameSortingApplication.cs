@@ -29,17 +29,24 @@ public class NameSortingApplication
     /// <summary>
     /// Runs the full name-sorting workflow for the given file path.
     /// </summary>
-    public void Run(string filePath)
+    public NameSortingResult Run(string filePath)
     {
         var rawNames = this.reader.Read(filePath);
 
         var parsedNames = new List<PersonName>();
-        foreach (var rawName in rawNames)
+        var invalidNames = new List<InvalidName>();
+
+        for (var index = 0; index < rawNames.Count; index++)
         {
-            var parsed = this.parser.Parse(rawName);
-            if (parsed is not null)
+            var rawName = rawNames[index];
+            var parseResult = this.parser.Parse(rawName);
+            if (parseResult.IsValid)
             {
-                parsedNames.Add(parsed);
+                parsedNames.Add(parseResult.Name!);
+            }
+            else if (!parseResult.IsIgnored)
+            {
+                invalidNames.Add(new InvalidName(index + 1, rawName, parseResult.Error!));
             }
         }
 
@@ -49,5 +56,7 @@ public class NameSortingApplication
         {
             writer.Write(sortedNames);
         }
+
+        return new NameSortingResult(sortedNames, invalidNames);
     }
 }

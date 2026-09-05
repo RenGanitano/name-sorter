@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Moq;
 using NameSorter.Models;
 using NameSorter.Services;
@@ -21,8 +22,8 @@ public class NameSortingApplicationTests
             new(["Marin"], "Alvarez"),
         };
         var mockParser = new Mock<INameParser>();
-        mockParser.Setup(p => p.Parse("Janet Parsons")).Returns(parsedNames[0]);
-        mockParser.Setup(p => p.Parse("Marin Alvarez")).Returns(parsedNames[1]);
+        mockParser.Setup(p => p.Parse("Janet Parsons")).Returns(new NameParseResult(parsedNames[0], null));
+        mockParser.Setup(p => p.Parse("Marin Alvarez")).Returns(new NameParseResult(parsedNames[1], null));
 
         var sortedNames = new List<PersonName> { parsedNames[1], parsedNames[0] };
         var mockSorter = new Mock<INameSorter>();
@@ -60,8 +61,8 @@ public class NameSortingApplicationTests
 
         var parsedName = new PersonName(["Janet"], "Parsons");
         var mockParser = new Mock<INameParser>();
-        mockParser.Setup(p => p.Parse("Janet Parsons")).Returns(parsedName);
-        mockParser.Setup(p => p.Parse("InvalidSingleName")).Returns((PersonName?)null);
+        mockParser.Setup(p => p.Parse("Janet Parsons")).Returns(new NameParseResult(parsedName, null));
+        mockParser.Setup(p => p.Parse("InvalidSingleName")).Returns(new NameParseResult(null, "invalid"));
 
         var mockSorter = new Mock<INameSorter>();
         mockSorter
@@ -77,10 +78,14 @@ public class NameSortingApplicationTests
             new[] { mockWriter.Object });
 
         // Act
-        app.Run("test.txt");
+        var result = app.Run("test.txt");
 
         // Assert
         mockSorter.Verify(s => s.Sort(It.Is<IList<PersonName>>(
             list => list.Count == 1 && list[0] == parsedName)), Times.Once);
+
+        result.InvalidNames.Should().ContainSingle();
+        result.InvalidNames[0].LineNumber.Should().Be(2);
+        result.InvalidNames[0].Value.Should().Be("InvalidSingleName");
     }
 }

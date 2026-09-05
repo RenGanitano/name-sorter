@@ -6,12 +6,10 @@ namespace NameSorter.Tests;
 
 public class FileNameWriterTests
 {
-    private static readonly object CurrentDirectoryLock = new();
-
     [Fact]
     public void Write_ValidNames_WritesToFile()
     {
-        lock (CurrentDirectoryLock)
+        lock (TestProcessState.Lock)
         {
             var originalDirectory = Directory.GetCurrentDirectory();
             var directory = Path.Combine(Path.GetTempPath(), $"name-sorter-{Guid.NewGuid():N}");
@@ -42,7 +40,7 @@ public class FileNameWriterTests
     [Fact]
     public void Write_EmptyList_CreatesEmptyFile()
     {
-        lock (CurrentDirectoryLock)
+        lock (TestProcessState.Lock)
         {
             var originalDirectory = Directory.GetCurrentDirectory();
             var directory = Path.Combine(Path.GetTempPath(), $"name-sorter-{Guid.NewGuid():N}");
