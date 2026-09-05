@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using NameSorter.Comparers;
 using NameSorter.Models;
 
