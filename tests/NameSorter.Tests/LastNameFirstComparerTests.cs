@@ -46,6 +46,33 @@ public class LastNameFirstComparerTests
     }
 
     [Fact]
+    public void Compare_LastNamesIgnoringCase_OrdersByGivenNames()
+    {
+        var alice = new PersonName(["Alice"], "smith");
+        var bob = new PersonName(["Bob"], "SMITH");
+
+        comparer.Compare(alice, bob).Should().BeNegative();
+    }
+
+    [Fact]
+    public void Compare_PunctuationAndAccents_UsesOrdinalCaseInsensitiveOrdering()
+    {
+        var apostrophe = new PersonName(["Alice"], "O'Neil");
+        var accent = new PersonName(["Alice"], "Óneil");
+
+        comparer.Compare(apostrophe, accent).Should().BeNegative();
+    }
+
+    [Fact]
+    public void Compare_DuplicateNames_ReturnsZero()
+    {
+        var first = new PersonName(["Alice", "Marie"], "Smith");
+        var second = new PersonName(["Alice", "Marie"], "Smith");
+
+        comparer.Compare(first, second).Should().Be(0);
+    }
+
+    [Fact]
     public void Compare_GivenNamePrefix_OrdersShorterNameFirst()
     {
         var shorter = new PersonName(["Adam"], "Smith");
