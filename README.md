@@ -4,6 +4,16 @@
 
 A command-line application that sorts a list of names by **last name**, then by **given names**.
 
+## Design and Approach
+
+I opted to split the program to the following main operations: read input, parse, sort and write. There is an interface for each allowing for loose coupling and maintainability, extensability and testability. ie. Comparers can be extended to enable different sorting rules.
+
+For build and test pipeline, opted for Github Actions as it is free and seemed the easiest option in Github. I also included test coverage metrics.
+
+Should handle 1000+ lines of input fine, loads the file contents into memory. For anything more I would look to switching to reading file chunks/pagination.
+
+Result pattern introduced allowing for more verbose error handling
+
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (or later)
@@ -128,14 +138,3 @@ The process exit codes are:
 | `2` | The input file does not exist |
 | `3` | An unexpected processing or output error occurred |
 
-## Design Decisions
-
-Design and Approach
-
-I opted to split the program to the following main operations: read input, parse, sort and write. There is an interface for each allowing for loose coupling and maintainability, extensability and testability. ie. Comparers can be extended to enable different sorting rules.
-
-For build and test pipeline, opted for Github Actions as it is free and seemed the easiest option in Github. I also included test coverage metrics.
-
-Should handle 1000+ lines of input fine, loads the file contents into memory. For anything more I would look to switching to reading file chunks/pagination.
-
-Result pattern introduced for more verbose error handling
