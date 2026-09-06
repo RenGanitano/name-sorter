@@ -53,6 +53,7 @@ dotnet run --project src/NameSorter -- ./unsorted-names-list.txt
 2. Sorts them by last name, then by given names (left-to-right).
 3. Prints the sorted list to **stdout**.
 4. Writes the sorted list to `sorted-names-list.txt` in the working directory.
+5. Reports invalid non-empty lines to **stderr** and continues processing valid names.
 
 ### Input format
 
@@ -82,12 +83,6 @@ Mikayla Lopez
 Frankie Conner Ritter
 ```
 
-Running:
-
-```bash
-dotnet run --project src/NameSorter -- ./unsorted-names-list.txt
-```
-
 Outputs:
 
 ```
@@ -110,31 +105,37 @@ Shelby Nathan Yoder
 dotnet test
 ```
 
-## Project Structure
+Running:
 
-```
-name-sorter/
-├── src/NameSorter/                 # Console application
-│   ├── Program.cs                  # Entry point and DI setup
-│   ├── NameSortingApplication.cs   # Workflow orchestrator
-│   ├── Comparers/
-│   │   └── LastNameFirstComparer.cs
-│   ├── Models/
-│   │   └── PersonName.cs
-│   └── Services/
-│       ├── ConsoleNameWriter.cs
-│       ├── FileNameReader.cs
-│       ├── FileNameWriter.cs
-│       ├── INameParser.cs
-│       ├── INameReader.cs
-│       ├── INameSorter.cs
-│       ├── INameWriter.cs
-│       ├── NameParser.cs
-│       └── NameSorterService.cs
-├── tests/NameSorter.Tests/         # xUnit tests (34 tests)
-├── name-sorter.slnx                # solution file
-├── unsorted-names-list.txt         # sample input
-├── sorted-names-list.txt           # generated output
-└── README.md
+```bash
+dotnet run --project src/NameSorter -- ./unsorted-names-list.txt
 ```
 
+Invalid lines are skipped with a line number and reason. A summary is written to
+stderr after processing, for example:
+
+```text
+Warning: Line 3 ("SingleName") skipped: expected 2-4 parts, got 1.
+Processed 10 valid name(s); skipped 1 invalid line(s).
+```
+
+The process exit codes are:
+
+| Code | Meaning |
+| ---: | --- |
+| `0` | Input was processed successfully, including when invalid lines were skipped |
+| `1` | No input path was supplied |
+| `2` | The input file does not exist |
+| `3` | An unexpected processing or output error occurred |
+
+## Design Decisions
+
+Design and Approach
+
+I opted to split the program to the following main operations: read input, parse, sort and write. There is an interface for each allowing for loose coupling and maintainability, extensability and testability. ie. Comparers can be extended to enable different sorting rules.
+
+For build and test pipeline, opted for Github Actions as it is free and seemed the easiest option in Github. I also included test coverage metrics.
+
+Should handle 1000+ lines of input fine, loads the file contents into memory. For anything more I would look to switching to reading file chunks/pagination.
+
+Result pattern introduced for more verbose error handling

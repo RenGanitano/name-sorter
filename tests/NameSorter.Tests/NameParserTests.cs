@@ -60,6 +60,16 @@ public class NameParserTests
     }
 
     [Fact]
+    public void Parse_ValidName_SetsValidStateAndNotIgnored()
+    {
+        var result = parser.Parse("Janet Parsons");
+
+        result.IsValid.Should().BeTrue();
+        result.IsIgnored.Should().BeFalse();
+        result.Error.Should().BeNull();
+    }
+
+    [Fact]
     public void Parse_SingleWord_ReturnsNull()
     {
         var result = parser.Parse("Madonna");
