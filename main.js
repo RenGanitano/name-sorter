@@ -300,7 +300,7 @@ var assemblies = [
       { "name": "NameSorter.Services.FileNameReader", "rp": "name_sorter_FileNameReader.html", "cl": 5, "ucl": 0, "cal": 5, "tl": 17, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "NameSorter.Services.FileNameWriter", "rp": "name_sorter_FileNameWriter.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 17, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "NameSorter.Services.NameParser", "rp": "name_sorter_NameParser.html", "cl": 8, "ucl": 0, "cal": 8, "tl": 28, "cb": 6, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "NameSorter.Services.NameParseResult", "rp": "name_sorter_NameParseResult.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 13, "cb": 1, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "NameSorter.Services.NameParseResult", "rp": "name_sorter_NameParseResult.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 13, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "NameSorter.Services.NameSorterService", "rp": "name_sorter_NameSorterService.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 21, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
 ];
