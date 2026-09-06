@@ -65,6 +65,23 @@ dotnet run --project src/NameSorter -- ./unsorted-names-list.txt
 4. Writes the sorted list to `sorted-names-list.txt` in the working directory.
 5. Reports invalid non-empty lines to **stderr** and continues processing valid names.
 
+Invalid lines are skipped with a line number and reason. A summary is written to
+stderr after processing, for example:
+
+```text
+Warning: Line 3 ("SingleName") skipped: expected 2-4 parts, got 1.
+Processed 10 valid name(s); skipped 1 invalid line(s).
+```
+
+The process exit codes are:
+
+| Code | Meaning |
+| ---: | --- |
+| `0` | Input was processed successfully, including when invalid lines were skipped |
+| `1` | No input path was supplied |
+| `2` | The input file does not exist |
+| `3` | An unexpected processing or output error occurred |
+
 ### Input format
 
 Each line contains 1–3 given names followed by a last name, separated by spaces:
@@ -114,27 +131,3 @@ Shelby Nathan Yoder
 ```bash
 dotnet test
 ```
-
-Running:
-
-```bash
-dotnet run --project src/NameSorter -- ./unsorted-names-list.txt
-```
-
-Invalid lines are skipped with a line number and reason. A summary is written to
-stderr after processing, for example:
-
-```text
-Warning: Line 3 ("SingleName") skipped: expected 2-4 parts, got 1.
-Processed 10 valid name(s); skipped 1 invalid line(s).
-```
-
-The process exit codes are:
-
-| Code | Meaning |
-| ---: | --- |
-| `0` | Input was processed successfully, including when invalid lines were skipped |
-| `1` | No input path was supplied |
-| `2` | The input file does not exist |
-| `3` | An unexpected processing or output error occurred |
-
