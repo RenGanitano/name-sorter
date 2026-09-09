@@ -18,11 +18,13 @@ public class LastNameFirstComparerTests
         comparer.Compare(bentley, archer).Should().BePositive();
     }
 
-    [Fact]
-    public void Compare_SameLastName_OrdersByFirstGivenName()
+    [Theory]
+    [InlineData("Smith", "Smith")]
+    [InlineData("smith", "SMITH")]
+    public void Compare_LastNamesEqualIgnoringCase_OrdersByFirstGivenName(string leftLastName, string rightLastName)
     {
-        var alice = new PersonName(["Alice"], "Smith");
-        var bob = new PersonName(["Bob"], "Smith");
+        var alice = new PersonName(["Alice"], leftLastName);
+        var bob = new PersonName(["Bob"], rightLastName);
 
         comparer.Compare(alice, bob).Should().BeNegative();
     }
@@ -36,22 +38,16 @@ public class LastNameFirstComparerTests
         comparer.Compare(adamAaron, adamBruce).Should().BeNegative();
     }
 
-    [Fact]
-    public void Compare_EqualNamesIgnoringCase_ReturnsZero()
+    [Theory]
+    [InlineData(new[] { "Alice", "Marie" }, "Smith", new[] { "Alice", "Marie" }, "Smith")] // identical
+    [InlineData(new[] { "ALICE" }, "SMITH", new[] { "alice" }, "smith")]                   // equal ignoring case
+    public void Compare_EquivalentNames_ReturnsZero(
+        string[] leftGiven, string leftLast, string[] rightGiven, string rightLast)
     {
-        var upper = new PersonName(["ALICE"], "SMITH");
-        var lower = new PersonName(["alice"], "smith");
+        var left = new PersonName(leftGiven, leftLast);
+        var right = new PersonName(rightGiven, rightLast);
 
-        comparer.Compare(upper, lower).Should().Be(0);
-    }
-
-    [Fact]
-    public void Compare_LastNamesIgnoringCase_OrdersByGivenNames()
-    {
-        var alice = new PersonName(["Alice"], "smith");
-        var bob = new PersonName(["Bob"], "SMITH");
-
-        comparer.Compare(alice, bob).Should().BeNegative();
+        comparer.Compare(left, right).Should().Be(0);
     }
 
     [Fact]
@@ -64,15 +60,6 @@ public class LastNameFirstComparerTests
     }
 
     [Fact]
-    public void Compare_DuplicateNames_ReturnsZero()
-    {
-        var first = new PersonName(["Alice", "Marie"], "Smith");
-        var second = new PersonName(["Alice", "Marie"], "Smith");
-
-        comparer.Compare(first, second).Should().Be(0);
-    }
-
-    [Fact]
     public void Compare_GivenNamePrefix_OrdersShorterNameFirst()
     {
         var shorter = new PersonName(["Adam"], "Smith");
@@ -81,34 +68,17 @@ public class LastNameFirstComparerTests
         comparer.Compare(shorter, longer).Should().BeNegative();
     }
 
-    [Fact]
-    public void Compare_SameName_ReturnsZero()
+    [Theory]
+    [InlineData(true, false, -1)] // left null, right present -> nulls sort first
+    [InlineData(false, true, 1)]  // left present, right null
+    [InlineData(true, true, 0)]   // both null -> equal
+    public void Compare_NullOperands_SortNullsFirst(bool leftNull, bool rightNull, int expectedSign)
     {
         var name = new PersonName(["John"], "Doe");
 
-        comparer.Compare(name, name).Should().Be(0);
-    }
+        var result = comparer.Compare(leftNull ? null : name, rightNull ? null : name);
 
-    [Fact]
-    public void Compare_NullLeft_ReturnsNegative()
-    {
-        var name = new PersonName(["John"], "Doe");
-
-        comparer.Compare(null, name).Should().BeNegative();
-    }
-
-    [Fact]
-    public void Compare_NullRight_ReturnsPositive()
-    {
-        var name = new PersonName(["John"], "Doe");
-
-        comparer.Compare(name, null).Should().BePositive();
-    }
-
-    [Fact]
-    public void Compare_BothNull_ReturnsZero()
-    {
-        comparer.Compare(null, null).Should().Be(0);
+        Math.Sign(result).Should().Be(expectedSign);
     }
 
     [Fact]
