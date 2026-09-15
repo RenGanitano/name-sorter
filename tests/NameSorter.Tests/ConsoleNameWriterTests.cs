@@ -7,20 +7,25 @@ namespace NameSorter.Tests;
 public class ConsoleNameWriterTests
 {
     [Fact]
-    public void Write_ValidNames_OutputsToConsole()
+    public void Write_ValidNames_OutputsOneNamePerLine()
     {
-        lock (TestProcessState.Lock)
+        using var output = new StringWriter();
+        var names = new List<PersonName>
         {
-            using var console = new ConsoleCapture();
-            var names = new List<PersonName>
-            {
-                new(["Marin"], "Alvarez"),
-                new(["Janet"], "Parsons"),
-            };
+            new(["Marin"], "Alvarez"),
+            new(["Janet"], "Parsons"),
+        };
 
-            new ConsoleNameWriter().Write(names);
+        new ConsoleNameWriter(output).Write(names);
 
-            console.Out.Should().Be($"Marin Alvarez{Environment.NewLine}Janet Parsons{Environment.NewLine}");
-        }
+        output.ToString().Should().Be($"Marin Alvarez{Environment.NewLine}Janet Parsons{Environment.NewLine}");
+    }
+
+    [Fact]
+    public void Constructor_NullOutput_ThrowsArgumentNullException()
+    {
+        Action act = () => new ConsoleNameWriter(null!);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("output");
     }
 }
