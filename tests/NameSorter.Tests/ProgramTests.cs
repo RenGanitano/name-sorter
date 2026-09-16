@@ -65,7 +65,33 @@ public class ProgramTests
         var exitCode = global::NameSorter.Program.Run([], output, error, Path.GetTempPath());
 
         exitCode.Should().Be(1);
-        error.ToString().Should().Contain("Usage: name-sorter <file-path>");
+        error.ToString().Should().Contain("Error: Missing <file-path>");
+        error.ToString().Should().Contain("Usage: name-sorter [--descending|-d] <file-path>");
+    }
+
+    [Fact]
+    public void Run_UnknownOption_ReturnsInvalidArgumentsExitCode()
+    {
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        var exitCode = global::NameSorter.Program.Run(["--bogus", "names.txt"], output, error, Path.GetTempPath());
+
+        exitCode.Should().Be(1);
+        error.ToString().Should().Contain("Error: Unknown option: --bogus");
+        error.ToString().Should().Contain("Usage: name-sorter [--descending|-d] <file-path>");
+    }
+
+    [Fact]
+    public void Run_ExtraArgument_ReturnsInvalidArgumentsExitCode()
+    {
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        var exitCode = global::NameSorter.Program.Run(["a.txt", "b.txt"], output, error, Path.GetTempPath());
+
+        exitCode.Should().Be(1);
+        error.ToString().Should().Contain("Error: Unexpected argument: b.txt");
     }
 
     // This test ensures missing input files are treated as a command-line error with a specific
@@ -101,5 +127,67 @@ public class ProgramTests
 
         exitCode.Should().Be(3);
         error.ToString().Should().Contain("Error:");
+    }
+
+    private static readonly string[] FrenchCanadianInput =
+    [
+        "Élise Côté",
+        "Marc-André St-Pierre",
+        "Jean Le Blanc",
+        "Louis de la Durantaye",
+        "Anne Cote",
+        "Pierre Lavoie",
+    ];
+
+    private static readonly string[] FrenchCanadianAscending =
+    [
+        "Anne Cote",
+        "Élise Côté",
+        "Louis de la Durantaye",
+        "Pierre Lavoie",
+        "Jean Le Blanc",
+        "Marc-André St-Pierre",
+    ];
+
+    // Accents sort beside their base letters, particle surnames sort under the particle
+    // ("Le Blanc" under L, "de la Durantaye" under D) and are printed exactly as written.
+    [Fact]
+    public void Run_FrenchCanadianNames_SortsWithCultureAwareOrderingAndParticles()
+    {
+        using var directory = new TempDirectory();
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        var inputPath = directory.Combine("input.txt");
+        File.WriteAllLines(inputPath, FrenchCanadianInput);
+
+        var exitCode = global::NameSorter.Program.Run([inputPath], output, error, directory.Path);
+
+        exitCode.Should().Be(0);
+        output.ToString().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)
+            .Should().Equal(FrenchCanadianAscending);
+        File.ReadAllLines(directory.Combine("sorted-names-list.txt")).Should().Equal(FrenchCanadianAscending);
+        error.ToString().Should().Contain("Processed 6 valid name(s); skipped 0 invalid line(s).");
+    }
+
+    [Theory]
+    [InlineData("--descending")]
+    [InlineData("-d")]
+    public void Run_DescendingFlag_ReversesOutput(string flag)
+    {
+        using var directory = new TempDirectory();
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        var inputPath = directory.Combine("input.txt");
+        File.WriteAllLines(inputPath, FrenchCanadianInput);
+        var expected = FrenchCanadianAscending.Reverse().ToArray();
+
+        var exitCode = global::NameSorter.Program.Run([flag, inputPath], output, error, directory.Path);
+
+        exitCode.Should().Be(0);
+        output.ToString().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)
+            .Should().Equal(expected);
+        File.ReadAllLines(directory.Combine("sorted-names-list.txt")).Should().Equal(expected);
     }
 }

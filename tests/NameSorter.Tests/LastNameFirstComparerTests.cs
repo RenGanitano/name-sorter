@@ -51,12 +51,61 @@ public class LastNameFirstComparerTests
     }
 
     [Fact]
-    public void Compare_PunctuationAndAccents_UsesOrdinalCaseInsensitiveOrdering()
+    public void Compare_AccentedLastNames_SortBesideUnaccentedForms()
     {
+        var names = new List<PersonName>
+        {
+            new(["Anne"], "Cotton"),
+            new(["Élise"], "Côté"),
+            new(["Anne"], "Cote"),
+        };
+
+        names.Sort(comparer);
+
+        names.Select(n => n.LastName).Should().Equal("Cote", "Côté", "Cotton");
+    }
+
+    [Fact]
+    public void Compare_AccentedGivenNames_SortByBaseLetter()
+    {
+        var elise = new PersonName(["Élise"], "Tremblay");
+        var emile = new PersonName(["Émile"], "Tremblay");
+        var ezra = new PersonName(["Ezra"], "Tremblay");
+
+        comparer.Compare(elise, emile).Should().BeNegative();
+        comparer.Compare(emile, ezra).Should().BeNegative();
+    }
+
+    [Fact]
+    public void Compare_ParticleLastName_SortsUnderTheParticle()
+    {
+        var bouchard = new PersonName(["Anne"], "Bouchard");
+        var lavoie = new PersonName(["Pierre"], "Lavoie");
+        var leBlanc = new PersonName(["Jean"], "Le Blanc");
+        var lemieux = new PersonName(["Mario"], "Lemieux");
+
+        comparer.Compare(bouchard, leBlanc).Should().BeNegative();
+        comparer.Compare(lavoie, leBlanc).Should().BeNegative();
+        comparer.Compare(leBlanc, lemieux).Should().BeNegative();
+    }
+
+    [Fact]
+    public void Compare_WithInjectedOrdinalComparer_UsesThatComparer()
+    {
+        var ordinal = new LastNameFirstComparer(StringComparer.OrdinalIgnoreCase);
         var apostrophe = new PersonName(["Alice"], "O'Neil");
         var accent = new PersonName(["Alice"], "Óneil");
 
-        comparer.Compare(apostrophe, accent).Should().BeNegative();
+        // Ordinal puts "Ó" after every ASCII letter, unlike the default culture-aware ordering.
+        ordinal.Compare(apostrophe, accent).Should().BeNegative();
+    }
+
+    [Fact]
+    public void Constructor_NullComparer_ThrowsArgumentNullException()
+    {
+        Action act = () => new LastNameFirstComparer(null!);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("comparer");
     }
 
     [Fact]

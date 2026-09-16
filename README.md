@@ -47,6 +47,14 @@ sudo cp ./publish/name-sorter /usr/local/bin/name-sorter
 dotnet run --project src/NameSorter -- ./unsorted-names-list.txt
 ```
 
+```text
+Usage: name-sorter [--descending|-d] <file-path>
+```
+
+| Option | Effect |
+| --- | --- |
+| `--descending`, `-d` | Emit the names in reverse order (Z→A by last name). May appear before or after the file path. |
+
 ### What it does
 
 1. Reads names from the specified file (one name per line).
@@ -64,6 +72,29 @@ Janet Parsons
 Adonis Julius Archer
 Hunter Uriah Mathew Clarke
 ```
+
+French surname particles — `de`, `du`, `des`, `d'`, `le`, `la`, `les`, `l'`, `Saint`,
+`Sainte`, `St`, `Ste` (with or without a trailing period) — are treated as part of the
+last name and do not count toward the three-given-name limit:
+
+```
+Jean Le Blanc                → given "Jean",       last name "Le Blanc"
+Louis de la Durantaye        → given "Louis",      last name "de la Durantaye"
+Jean Marc de la Durantaye    → given "Jean Marc",  last name "de la Durantaye"
+```
+
+Hyphenated names (`Marie-Ève`, `St-Pierre`) are single words and need no special handling.
+
+### Sort order
+
+- Names are compared case-insensitively using French-Canadian (`fr-CA`) collation, so
+  accented letters sort beside their unaccented forms: `Cote`, `Côté`, `Cotton`.
+- A last name that starts with a particle is sorted as written, under the particle:
+  `Le Blanc` is filed under **L** (between `Lavoie` and `Lemieux`), `de la Durantaye`
+  under **D**.
+- Ties on last name are broken by given names left-to-right; a name with fewer given
+  names sorts first (`Adam Smith` before `Adam Bruce Smith`).
+- `--descending` reverses the whole ordering.
 
 ### Example
 
@@ -124,7 +155,7 @@ The process exit codes are:
 | Code | Meaning |
 | ---: | --- |
 | `0` | Input was processed successfully, including when invalid lines were skipped |
-| `1` | No input path was supplied |
+| `1` | Invalid arguments (missing file path, unknown option, or more than one file path) |
 | `2` | The input file does not exist |
 | `3` | An unexpected processing or output error occurred |
 
@@ -132,7 +163,9 @@ The process exit codes are:
 
 Design and Approach
 
-I opted to split the program to the following main operations: read input, parse, sort and write. There is an interface for each allowing for loose coupling and maintainability, extensability and testability. ie. Comparers can be extended to enable different sorting rules.
+I opted to split the program to the following main operations: read input, parse, sort and write. There is an interface for each allowing for loose coupling and maintainability, extensibility and testability. ie. Comparers can be extended to enable different sorting rules — `--descending` is implemented by wrapping the default comparer in a `DescendingComparer<T>`, and the collation is an injectable `StringComparer` (defaulting to `fr-CA`) so other cultures can be supported without touching the sort logic.
+
+Culture-aware comparison relies on ICU. If the runtime is switched to invariant globalization mode (`DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1` or `<InvariantGlobalization>true</InvariantGlobalization>`), comparison silently falls back to ordinal and the accent-ordering tests will fail.
 
 For build and test pipeline, opted for Github Actions as it is free and seemed the easiest option in Github. I also included test coverage metrics.
 

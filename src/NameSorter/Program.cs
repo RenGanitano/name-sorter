@@ -21,13 +21,16 @@ public class Program
     /// </summary>
     public static int Run(string[] args, TextWriter output, TextWriter error, string outputDirectory)
     {
-        if (args.Length == 0)
+        var parsedArgs = CommandLineOptions.Parse(args);
+        if (!parsedArgs.IsValid)
         {
-            error.WriteLine("Usage: name-sorter <file-path>");
+            error.WriteLine($"Error: {parsedArgs.Error}");
+            error.WriteLine(CommandLineOptions.Usage);
             return 1;
         }
 
-        var filePath = args[0];
+        var options = parsedArgs.Options!;
+        var filePath = options.FilePath;
 
         if (!File.Exists(filePath))
         {
@@ -37,11 +40,17 @@ public class Program
 
         var outputPath = Path.Combine(outputDirectory, FileNameWriter.DefaultOutputFileName);
 
+        IComparer<PersonName> comparer = new LastNameFirstComparer();
+        if (options.Direction == SortDirection.Descending)
+        {
+            comparer = new DescendingComparer<PersonName>(comparer);
+        }
+
         // Configure DI container
         var services = new ServiceCollection();
         services.AddSingleton<INameReader, FileNameReader>();
         services.AddSingleton<INameParser, NameParser>();
-        services.AddSingleton<IComparer<PersonName>, LastNameFirstComparer>();
+        services.AddSingleton(comparer);
         services.AddSingleton<INameSorter, NameSorterService>();
         services.AddSingleton<INameWriter>(new ConsoleNameWriter(output));
         services.AddSingleton<INameWriter>(new FileNameWriter(outputPath));
