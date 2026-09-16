@@ -7,54 +7,25 @@ public class NameParserTests
 {
     private readonly NameParser parser = new();
 
-    [Fact]
-    public void Parse_OneGivenName_ReturnsExpectedPersonName()
+    [Theory]
+    [InlineData("Janet Parsons", "Parsons", new[] { "Janet" })]
+    [InlineData("Adonis Julius Archer", "Archer", new[] { "Adonis", "Julius" })]
+    [InlineData("Hunter Uriah Mathew Clarke", "Clarke", new[] { "Hunter", "Uriah", "Mathew" })]
+    public void Parse_ValidName_SplitsGivenNamesAndLastName(string raw, string lastName, string[] givenNames)
     {
-        var result = parser.Parse("Janet Parsons");
+        var result = parser.Parse(raw);
 
         result.Name.Should().NotBeNull();
-        result.Name!.LastName.Should().Be("Parsons");
-        result.Name.GivenNames.Should().ContainSingle();
-        result.Name.GivenNames[0].Should().Be("Janet");
+        result.Name!.LastName.Should().Be(lastName);
+        result.Name.GivenNames.Should().Equal(givenNames);
     }
 
-    [Fact]
-    public void Parse_TwoGivenNames_ReturnsExpectedPersonName()
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Parse_BlankInput_IsIgnored(string raw)
     {
-        var result = parser.Parse("Adonis Julius Archer");
-
-        result.Name.Should().NotBeNull();
-        result.Name!.LastName.Should().Be("Archer");
-        result.Name.GivenNames.Should().HaveCount(2);
-        result.Name.GivenNames[0].Should().Be("Adonis");
-        result.Name.GivenNames[1].Should().Be("Julius");
-    }
-
-    [Fact]
-    public void Parse_ThreeGivenNames_ReturnsExpectedPersonName()
-    {
-        var result = parser.Parse("Hunter Uriah Mathew Clarke");
-
-        result.Name.Should().NotBeNull();
-        result.Name!.LastName.Should().Be("Clarke");
-        result.Name.GivenNames.Should().HaveCount(3);
-        result.Name.GivenNames[0].Should().Be("Hunter");
-        result.Name.GivenNames[1].Should().Be("Uriah");
-        result.Name.GivenNames[2].Should().Be("Mathew");
-    }
-
-    [Fact]
-    public void Parse_EmptyString_ReturnsNull()
-    {
-        var result = parser.Parse("");
-
-        result.IsIgnored.Should().BeTrue();
-    }
-
-    [Fact]
-    public void Parse_WhitespaceOnly_ReturnsNull()
-    {
-        var result = parser.Parse("   ");
+        var result = parser.Parse(raw);
 
         result.IsIgnored.Should().BeTrue();
     }
@@ -69,48 +40,23 @@ public class NameParserTests
         result.Error.Should().BeNull();
     }
 
-    [Fact]
-    public void Parse_SingleWord_ReturnsNull()
+    [Theory]
+    [InlineData("Madonna", 1)]
+    [InlineData("One Two Three Four Five", 5)]
+    public void Parse_PartCountOutOfRange_ReturnsError(string raw, int partCount)
     {
-        var result = parser.Parse("Madonna");
+        var result = parser.Parse(raw);
 
         result.IsValid.Should().BeFalse();
-        result.Error.Should().Be("expected 2-4 parts, got 1");
-    }
-
-    [Fact]
-    public void Parse_FiveWords_ReturnsNull()
-    {
-        var result = parser.Parse("One Two Three Four Five");
-
-        result.IsValid.Should().BeFalse();
-        result.Error.Should().Be("expected 2-4 parts, got 5");
-    }
-
-    [Fact]
-    public void Parse_LeadingAndTrailingWhitespace_ReturnsExpectedPersonName()
-    {
-        var result = parser.Parse("  Janet Parsons  ");
-
-        result.Name.Should().NotBeNull();
-        result.Name!.LastName.Should().Be("Parsons");
-        result.Name.GivenNames[0].Should().Be("Janet");
-    }
-
-    [Fact]
-    public void Parse_MultipleSpacesBetweenNames_ReturnsExpectedPersonName()
-    {
-        var result = parser.Parse("Janet   Parsons");
-
-        result.Name.Should().NotBeNull();
-        result.Name!.LastName.Should().Be("Parsons");
-        result.Name.GivenNames[0].Should().Be("Janet");
+        result.Error.Should().Be($"expected 2-4 parts, got {partCount}");
     }
 
     [Theory]
+    [InlineData("  Janet Parsons  ")]
+    [InlineData("Janet   Parsons")]
     [InlineData("Janet\tParsons")]
     [InlineData("Janet\u00A0Parsons")]
-    public void Parse_TabAndNonBreakingSpaceBetweenNames_ReturnsExpectedPersonName(string rawName)
+    public void Parse_IrregularWhitespace_ReturnsExpectedPersonName(string rawName)
     {
         var result = parser.Parse(rawName);
 

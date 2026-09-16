@@ -9,58 +9,36 @@ public class FileNameWriterTests
     [Fact]
     public void Write_ValidNames_WritesToFile()
     {
-        lock (TestProcessState.Lock)
+        using var directory = new TempDirectory();
+        var outputPath = directory.Combine("sorted-names-list.txt");
+        var names = new List<PersonName>
         {
-            var originalDirectory = Directory.GetCurrentDirectory();
-            var directory = Path.Combine(Path.GetTempPath(), $"name-sorter-{Guid.NewGuid():N}");
-            Directory.CreateDirectory(directory);
+            new(["Marin"], "Alvarez"),
+            new(["Janet"], "Parsons"),
+        };
 
-            try
-            {
-                Directory.SetCurrentDirectory(directory);
-                var names = new List<PersonName>
-                {
-                    new(["Marin"], "Alvarez"),
-                    new(["Janet"], "Parsons"),
-                };
+        new FileNameWriter(outputPath).Write(names);
 
-                new FileNameWriter().Write(names);
-
-                File.ReadAllLines(Path.Combine(directory, "sorted-names-list.txt"))
-                    .Should().Equal(["Marin Alvarez", "Janet Parsons"]);
-            }
-            finally
-            {
-                Directory.SetCurrentDirectory(originalDirectory);
-                Directory.Delete(directory, recursive: true);
-            }
-        }
+        File.ReadAllLines(outputPath).Should().Equal(["Marin Alvarez", "Janet Parsons"]);
     }
 
     [Fact]
     public void Write_EmptyList_CreatesEmptyFile()
     {
-        lock (TestProcessState.Lock)
-        {
-            var originalDirectory = Directory.GetCurrentDirectory();
-            var directory = Path.Combine(Path.GetTempPath(), $"name-sorter-{Guid.NewGuid():N}");
-            Directory.CreateDirectory(directory);
+        using var directory = new TempDirectory();
+        var outputPath = directory.Combine("sorted-names-list.txt");
 
-            try
-            {
-                Directory.SetCurrentDirectory(directory);
+        new FileNameWriter(outputPath).Write([]);
 
-                new FileNameWriter().Write([]);
+        File.Exists(outputPath).Should().BeTrue();
+        File.ReadAllLines(outputPath).Should().BeEmpty();
+    }
 
-                var outputPath = Path.Combine(directory, "sorted-names-list.txt");
-                File.Exists(outputPath).Should().BeTrue();
-                File.ReadAllLines(outputPath).Should().BeEmpty();
-            }
-            finally
-            {
-                Directory.SetCurrentDirectory(originalDirectory);
-                Directory.Delete(directory, recursive: true);
-            }
-        }
+    [Fact]
+    public void Constructor_NullOutputPath_ThrowsArgumentNullException()
+    {
+        Action act = () => new FileNameWriter(null!);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("outputPath");
     }
 }

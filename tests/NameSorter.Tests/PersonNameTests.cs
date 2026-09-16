@@ -5,28 +5,15 @@ namespace NameSorter.Tests;
 
 public class PersonNameTests
 {
-    [Fact]
-    public void ToString_WithOneGivenName_ReturnsCorrectFormat()
+    [Theory]
+    [InlineData(new[] { "Janet" }, "Parsons", "Janet Parsons")]
+    [InlineData(new[] { "Adonis", "Julius" }, "Archer", "Adonis Julius Archer")]
+    [InlineData(new[] { "Hunter", "Uriah", "Mathew" }, "Clarke", "Hunter Uriah Mathew Clarke")]
+    public void ToString_JoinsGivenNamesThenLastName(string[] givenNames, string lastName, string expected)
     {
-        var name = new PersonName(["Janet"], "Parsons");
+        var name = new PersonName(givenNames, lastName);
 
-        name.ToString().Should().Be("Janet Parsons");
-    }
-
-    [Fact]
-    public void ToString_WithTwoGivenNames_ReturnsCorrectFormat()
-    {
-        var name = new PersonName(["Adonis", "Julius"], "Archer");
-
-        name.ToString().Should().Be("Adonis Julius Archer");
-    }
-
-    [Fact]
-    public void ToString_WithThreeGivenNames_ReturnsCorrectFormat()
-    {
-        var name = new PersonName(["Hunter", "Uriah", "Mathew"], "Clarke");
-
-        name.ToString().Should().Be("Hunter Uriah Mathew Clarke");
+        name.ToString().Should().Be(expected);
     }
 
     [Fact]
@@ -34,7 +21,8 @@ public class PersonNameTests
     {
         Action act = () => new PersonName(null!, "Smith");
 
-        act.Should().Throw<ArgumentNullException>();
+        act.Should().Throw<ArgumentNullException>()
+            .Which.ParamName.Should().Be("givenNames");
     }
 
     [Fact]
@@ -42,7 +30,8 @@ public class PersonNameTests
     {
         Action act = () => new PersonName(["John"], null!);
 
-        act.Should().Throw<ArgumentNullException>();
+        act.Should().Throw<ArgumentNullException>()
+            .Which.ParamName.Should().Be("lastName");
     }
 
     [Fact]

@@ -20,7 +20,9 @@ public class NameParser : INameParser
             return new NameParseResult(null, $"expected 2-4 parts, got {parts.Length}");
         }
 
+        // All parts except the final part are given names.
         var givenNames = parts[..^1].ToList();
+        // The final part is the last name.
         var lastName = parts[^1];
 
         return new NameParseResult(new PersonName(givenNames, lastName), null);

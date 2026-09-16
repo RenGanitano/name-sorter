@@ -51,10 +51,11 @@ public class NameSortingApplicationTests
     }
 
     [Fact]
-    public void Run_InvalidNames_ExcludesThemBeforeSorting()
+    public void Run_InvalidNames_ExcludesThemBeforeSortingAndReportsTrueLineNumber()
     {
-        // Arrange
-        var rawNames = new List<string> { "Janet Parsons", "InvalidSingleName" };
+        // Arrange: an ignored blank line sits between the valid and invalid names, so the
+        // invalid name is on file line 3 even though it is the second parseable entry.
+        var rawNames = new List<string> { "Janet Parsons", "", "InvalidSingleName" };
 
         var mockReader = new Mock<INameReader>();
         mockReader.Setup(r => r.Read("test.txt")).Returns(rawNames);
@@ -62,6 +63,7 @@ public class NameSortingApplicationTests
         var parsedName = new PersonName(["Janet"], "Parsons");
         var mockParser = new Mock<INameParser>();
         mockParser.Setup(p => p.Parse("Janet Parsons")).Returns(new NameParseResult(parsedName, null));
+        mockParser.Setup(p => p.Parse("")).Returns(new NameParseResult(null, null));
         mockParser.Setup(p => p.Parse("InvalidSingleName")).Returns(new NameParseResult(null, "invalid"));
 
         var mockSorter = new Mock<INameSorter>();
@@ -85,7 +87,7 @@ public class NameSortingApplicationTests
             list => list.Count == 1 && list[0] == parsedName)), Times.Once);
 
         result.InvalidNames.Should().ContainSingle();
-        result.InvalidNames[0].LineNumber.Should().Be(2);
+        result.InvalidNames[0].LineNumber.Should().Be(3);
         result.InvalidNames[0].Value.Should().Be("InvalidSingleName");
     }
 }

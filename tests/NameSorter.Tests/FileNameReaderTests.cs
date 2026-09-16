@@ -6,7 +6,7 @@ namespace NameSorter.Tests;
 public class FileNameReaderTests
 {
     [Fact]
-    public void Read_ExistingFile_ReturnsNonEmptyLinesInOrder()
+    public void Read_ExistingFile_ReturnsEveryLineInOrder()
     {
         var directory = CreateTemporaryDirectory();
         var filePath = Path.Combine(directory, "names.txt");
@@ -17,7 +17,8 @@ public class FileNameReaderTests
 
             var names = new FileNameReader().Read(filePath);
 
-            names.Should().Equal(["Janet Parsons", "Marin Alvarez"]);
+            // Blank lines are preserved so callers can number lines accurately.
+            names.Should().Equal(["Janet Parsons", "", "   ", "Marin Alvarez"]);
         }
         finally
         {
