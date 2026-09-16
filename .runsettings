@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pass with `dotnet test --settings .runsettings`; CI does this. -->
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <!-- Microsoft.AspNetCore.OpenApi source-generates XML-comment support into the
+               API assembly; it is not our code and should not count toward coverage. -->
+          <Exclude>[NameSorter.Api]Microsoft.AspNetCore.OpenApi.Generated.*,[NameSorter.Api]System.Runtime.CompilerServices.*</Exclude>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

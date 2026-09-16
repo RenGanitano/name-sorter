@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\NameSorter\NameSorter.csproj" />
+    <ProjectReference Include="..\..\src\NameSorter.Cli\NameSorter.Cli.csproj" />
   </ItemGroup>
 
 </Project>

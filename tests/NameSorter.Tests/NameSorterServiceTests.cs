@@ -137,4 +137,35 @@ public class NameSorterServiceTests
         sorted[0].Should().BeSameAs(first);
         sorted[1].Should().BeSameAs(second);
     }
+
+    [Fact]
+    public void Sort_DescendingDirection_ReturnsReverseOrder()
+    {
+        var service = new NameSorterService(new LastNameFirstComparer());
+        var names = new List<PersonName>
+        {
+            new(["Janet"], "Parsons"),
+            new(["Marin"], "Alvarez"),
+            new(["Leo"], "Gardner"),
+        };
+
+        var sorted = service.Sort(names, SortDirection.Descending);
+
+        sorted.Select(n => n.ToString()).Should().Equal("Janet Parsons", "Leo Gardner", "Marin Alvarez");
+    }
+
+    [Fact]
+    public void Sort_AscendingDirection_MatchesDefault()
+    {
+        var service = new NameSorterService(new LastNameFirstComparer());
+        var names = new List<PersonName>
+        {
+            new(["Janet"], "Parsons"),
+            new(["Marin"], "Alvarez"),
+        };
+
+        var explicitAscending = service.Sort(names, SortDirection.Ascending);
+
+        explicitAscending.Should().Equal(service.Sort(names));
+    }
 }

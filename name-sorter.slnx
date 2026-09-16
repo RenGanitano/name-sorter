@@ -5,9 +5,12 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/src/">
-    <Project Path="src/NameSorter/NameSorter.csproj" />
+    <Project Path="src/NameSorter.Core/NameSorter.Core.csproj" />
+    <Project Path="src/NameSorter.Cli/NameSorter.Cli.csproj" />
+    <Project Path="src/NameSorter.Api/NameSorter.Api.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/NameSorter.Tests/NameSorter.Tests.csproj" />
+    <Project Path="tests/NameSorter.Api.Tests/NameSorter.Api.Tests.csproj" />
   </Folder>
 </Solution>

@@ -7,5 +7,5 @@ namespace NameSorter.Services;
 /// </summary>
 public interface INameSorter
 {
-    IList<PersonName> Sort(IList<PersonName> names);
+    IList<PersonName> Sort(IList<PersonName> names, SortDirection direction = SortDirection.Ascending);
 }

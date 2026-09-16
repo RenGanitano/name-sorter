@@ -7,87 +7,55 @@ namespace NameSorter.Tests;
 
 public class NameSortingApplicationTests
 {
+    private static readonly List<string> RawNames = ["Janet Parsons", "Marin Alvarez"];
+
+    private static readonly NameSortingResult ProcessedResult = new(
+        [new PersonName(["Marin"], "Alvarez"), new PersonName(["Janet"], "Parsons")],
+        [new InvalidName(3, "InvalidSingleName", "invalid")]);
+
     [Fact]
-    public void Run_ValidInput_WritesSortedNamesToAllWriters()
+    public void Run_ReadsFileProcessesNamesAndWritesResultToAllWriters()
     {
         // Arrange
-        var rawNames = new List<string> { "Janet Parsons", "Marin Alvarez" };
-
         var mockReader = new Mock<INameReader>();
-        mockReader.Setup(r => r.Read("test.txt")).Returns(rawNames);
+        mockReader.Setup(r => r.Read("test.txt")).Returns(RawNames);
 
-        var parsedNames = new List<PersonName>
-        {
-            new(["Janet"], "Parsons"),
-            new(["Marin"], "Alvarez"),
-        };
-        var mockParser = new Mock<INameParser>();
-        mockParser.Setup(p => p.Parse("Janet Parsons")).Returns(new NameParseResult(parsedNames[0], null));
-        mockParser.Setup(p => p.Parse("Marin Alvarez")).Returns(new NameParseResult(parsedNames[1], null));
-
-        var sortedNames = new List<PersonName> { parsedNames[1], parsedNames[0] };
-        var mockSorter = new Mock<INameSorter>();
-        mockSorter.Setup(s => s.Sort(It.IsAny<IList<PersonName>>())).Returns(sortedNames);
+        var mockProcessor = new Mock<INameSortingProcessor>();
+        mockProcessor.Setup(p => p.Process(RawNames, SortDirection.Ascending)).Returns(ProcessedResult);
 
         var mockWriter1 = new Mock<INameWriter>();
         var mockWriter2 = new Mock<INameWriter>();
 
         var app = new NameSortingApplication(
             mockReader.Object,
-            mockParser.Object,
-            mockSorter.Object,
+            mockProcessor.Object,
             new[] { mockWriter1.Object, mockWriter2.Object });
-
-        // Act
-        app.Run("test.txt");
-
-        // Assert
-        mockReader.Verify(r => r.Read("test.txt"), Times.Once);
-        mockParser.Verify(p => p.Parse("Janet Parsons"), Times.Once);
-        mockParser.Verify(p => p.Parse("Marin Alvarez"), Times.Once);
-        mockSorter.Verify(s => s.Sort(It.IsAny<IList<PersonName>>()), Times.Once);
-        mockWriter1.Verify(w => w.Write(sortedNames), Times.Once);
-        mockWriter2.Verify(w => w.Write(sortedNames), Times.Once);
-    }
-
-    [Fact]
-    public void Run_InvalidNames_ExcludesThemBeforeSortingAndReportsTrueLineNumber()
-    {
-        // Arrange: an ignored blank line sits between the valid and invalid names, so the
-        // invalid name is on file line 3 even though it is the second parseable entry.
-        var rawNames = new List<string> { "Janet Parsons", "", "InvalidSingleName" };
-
-        var mockReader = new Mock<INameReader>();
-        mockReader.Setup(r => r.Read("test.txt")).Returns(rawNames);
-
-        var parsedName = new PersonName(["Janet"], "Parsons");
-        var mockParser = new Mock<INameParser>();
-        mockParser.Setup(p => p.Parse("Janet Parsons")).Returns(new NameParseResult(parsedName, null));
-        mockParser.Setup(p => p.Parse("")).Returns(new NameParseResult(null, null));
-        mockParser.Setup(p => p.Parse("InvalidSingleName")).Returns(new NameParseResult(null, "invalid"));
-
-        var mockSorter = new Mock<INameSorter>();
-        mockSorter
-            .Setup(s => s.Sort(It.IsAny<IList<PersonName>>()))
-            .Returns<IList<PersonName>>(names => names);
-
-        var mockWriter = new Mock<INameWriter>();
-
-        var app = new NameSortingApplication(
-            mockReader.Object,
-            mockParser.Object,
-            mockSorter.Object,
-            new[] { mockWriter.Object });
 
         // Act
         var result = app.Run("test.txt");
 
-        // Assert
-        mockSorter.Verify(s => s.Sort(It.Is<IList<PersonName>>(
-            list => list.Count == 1 && list[0] == parsedName)), Times.Once);
+        // Assert: the processor's result is written to every writer and returned unchanged,
+        // so the caller can still report the invalid lines.
+        mockReader.Verify(r => r.Read("test.txt"), Times.Once);
+        mockProcessor.Verify(p => p.Process(RawNames, SortDirection.Ascending), Times.Once);
+        mockWriter1.Verify(w => w.Write(ProcessedResult.SortedNames), Times.Once);
+        mockWriter2.Verify(w => w.Write(ProcessedResult.SortedNames), Times.Once);
+        result.Should().BeSameAs(ProcessedResult);
+    }
 
-        result.InvalidNames.Should().ContainSingle();
-        result.InvalidNames[0].LineNumber.Should().Be(3);
-        result.InvalidNames[0].Value.Should().Be("InvalidSingleName");
+    [Fact]
+    public void Run_Descending_PassesDirectionToProcessor()
+    {
+        var mockReader = new Mock<INameReader>();
+        mockReader.Setup(r => r.Read("test.txt")).Returns(RawNames);
+
+        var mockProcessor = new Mock<INameSortingProcessor>();
+        mockProcessor.Setup(p => p.Process(RawNames, SortDirection.Descending)).Returns(ProcessedResult);
+
+        var app = new NameSortingApplication(mockReader.Object, mockProcessor.Object, []);
+
+        app.Run("test.txt", SortDirection.Descending);
+
+        mockProcessor.Verify(p => p.Process(RawNames, SortDirection.Descending), Times.Once);
     }
 }

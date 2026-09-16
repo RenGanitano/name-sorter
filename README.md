@@ -2,7 +2,17 @@
 
 [![Coverage](https://renganitano.github.io/name-sorter/badge.svg)](https://renganitano.github.io/name-sorter/)
 
-A command-line application that sorts a list of names by **last name**, then by **given names**.
+A command-line application and a minimal web API that sort a list of names by **last name**, then by **given names**.
+
+## Project layout
+
+| Project | Purpose |
+| --- | --- |
+| `src/NameSorter.Core` | Models, comparers and the parse → sort pipeline shared by both hosts |
+| `src/NameSorter.Cli` | The `name-sorter` command-line executable (file in, stdout + file out) |
+| `src/NameSorter.Api` | ASP.NET Core minimal API exposing the same pipeline over HTTP |
+| `tests/NameSorter.Tests` | Unit and end-to-end tests for Core and the CLI |
+| `tests/NameSorter.Api.Tests` | In-process HTTP tests for the API |
 
 ## Prerequisites
 
@@ -19,7 +29,7 @@ dotnet build
 Create a standalone executable you can invoke directly:
 
 ```bash
-dotnet publish src/NameSorter/NameSorter.csproj -c Release -o ./publish
+dotnet publish src/NameSorter.Cli/NameSorter.Cli.csproj -c Release -o ./publish
 ```
 
 Then run it either directly from the publish directory:
@@ -44,7 +54,7 @@ sudo cp ./publish/name-sorter /usr/local/bin/name-sorter
 ## Run
 
 ```bash
-dotnet run --project src/NameSorter -- ./unsorted-names-list.txt
+dotnet run --project src/NameSorter.Cli -- ./unsorted-names-list.txt
 ```
 
 ```text
@@ -136,10 +146,11 @@ Shelby Nathan Yoder
 dotnet test
 ```
 
-Running:
+To collect coverage the way CI does (`.runsettings` excludes the OpenAPI package's
+source-generated code from the numbers):
 
 ```bash
-dotnet run --project src/NameSorter -- ./unsorted-names-list.txt
+dotnet test --settings .runsettings --collect:"XPlat Code Coverage"
 ```
 
 Invalid lines are skipped with a line number and reason. A summary is written to
@@ -159,6 +170,50 @@ The process exit codes are:
 | `2` | The input file does not exist |
 | `3` | An unexpected processing or output error occurred |
 
+## Web API
+
+The same parse → sort pipeline is exposed over HTTP by `src/NameSorter.Api`:
+
+```bash
+dotnet run --project src/NameSorter.Api
+```
+
+This listens on `http://localhost:5128` (see `Properties/launchSettings.json`). In the
+Development environment the OpenAPI document is served at `/openapi/v1.json`.
+
+### `POST /names/sort`
+
+Request body: the names to sort, one per array entry, plus an optional `direction`
+(`ascending`, the default, or `descending`):
+
+```bash
+curl -s -X POST http://localhost:5128/names/sort \
+  -H 'Content-Type: application/json' \
+  -d '{"names": ["Janet Parsons", "Adonis Julius Archer", "SingleName", "Marin Alvarez"]}'
+```
+
+Response — `200 OK`:
+
+```json
+{
+  "sortedNames": ["Marin Alvarez", "Adonis Julius Archer", "Janet Parsons"],
+  "invalidNames": [
+    { "lineNumber": 3, "value": "SingleName", "reason": "expected 2-4 parts, got 1" }
+  ]
+}
+```
+
+- `sortedNames` are formatted exactly as the CLI prints them.
+- `invalidNames` mirrors the CLI's stderr warnings; `lineNumber` is the 1-based position in
+  the request's `names` array. Blank entries are ignored but still count toward the position.
+- The API never writes `sorted-names-list.txt`; the response is the output.
+
+| Status | Meaning |
+| ---: | --- |
+| `200` | Processed, including when some entries were invalid (see `invalidNames`) |
+| `400` | Malformed JSON, missing `names`, or an unknown `direction` (RFC 9457 problem details) |
+| `500` | An unexpected processing error occurred |
+
 ## Design Decisions
 
 Design and Approach
@@ -172,3 +227,5 @@ For build and test pipeline, opted for Github Actions as it is free and seemed t
 Should handle 1000+ lines of input fine, loads the file contents into memory. For anything more I would look to switching to reading file chunks/pagination.
 
 Result pattern introduced for more verbose error handling
+
+The parse → sort pipeline lives in `NameSorter.Core` behind `INameSortingProcessor`, with no I/O of its own. The CLI adds a file reader and console/file writers around it; the web API binds it to a single endpoint. Both hosts register the pipeline through the same `AddNameSorting()` extension so the two cannot drift.

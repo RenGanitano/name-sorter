@@ -29,9 +29,10 @@ jobs:
 
       - name: Test with coverage
         run: |
-          dotnet test tests/NameSorter.Tests/NameSorter.Tests.csproj \
+          dotnet test name-sorter.slnx \
             --no-build \
             --configuration Release \
+            --settings .runsettings \
             --collect:"XPlat Code Coverage" \
             --results-directory ./coverage
 

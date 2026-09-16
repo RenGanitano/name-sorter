@@ -1,6 +1,4 @@
-using NameSorter.Models;
-
-namespace NameSorter.Services;
+namespace NameSorter.Models;
 
 /// <summary>
 /// Represents either a parsed name, an ignored blank line, or a validation error.

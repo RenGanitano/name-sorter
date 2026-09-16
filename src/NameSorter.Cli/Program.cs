@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
-using NameSorter.Comparers;
-using NameSorter.Models;
+using NameSorter.DependencyInjection;
 using NameSorter.Services;
 
 namespace NameSorter;
@@ -40,18 +39,10 @@ public class Program
 
         var outputPath = Path.Combine(outputDirectory, FileNameWriter.DefaultOutputFileName);
 
-        IComparer<PersonName> comparer = new LastNameFirstComparer();
-        if (options.Direction == SortDirection.Descending)
-        {
-            comparer = new DescendingComparer<PersonName>(comparer);
-        }
-
-        // Configure DI container
+        // Configure DI container: the shared parse → sort pipeline plus the CLI's own I/O.
         var services = new ServiceCollection();
+        services.AddNameSorting();
         services.AddSingleton<INameReader, FileNameReader>();
-        services.AddSingleton<INameParser, NameParser>();
-        services.AddSingleton(comparer);
-        services.AddSingleton<INameSorter, NameSorterService>();
         services.AddSingleton<INameWriter>(new ConsoleNameWriter(output));
         services.AddSingleton<INameWriter>(new FileNameWriter(outputPath));
         services.AddSingleton<NameSortingApplication>();
@@ -61,7 +52,7 @@ public class Program
 
         try
         {
-            var result = app.Run(filePath);
+            var result = app.Run(filePath, options.Direction);
 
             foreach (var invalidName in result.InvalidNames)
             {
